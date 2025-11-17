@@ -29,9 +29,9 @@ jobs:
         run: npm run build --if-present
 
       # ここで Azure にデプロイ（publish profile 方式）
-      - name: Deploy to Azure Functions
-        uses: Azure/functions-action@v1
-        with:
-          app-name: "<あなたの Function App 名>"           # 例: kessan-func-app
-          package: "./kessan-func"                         # Functions プロジェクトのフォルダ
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      - name: 'Deploy to Azure Functions'
+  uses: Azure/functions-action@v1
+  with:
+    app-name: 'function-ai-demo-kessan'          # そのままでOK
+    package: './kessan-func'                    # Functions プロジェクトのフォルダ
+    publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
