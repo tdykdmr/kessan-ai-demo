@@ -8,7 +8,7 @@ on:
 
 env:
   # Functions プロジェクトの実体は kessan-func/kessan-func 配下にある
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'kessan-func/kessan-func'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'kessan-func'
   NODE_VERSION: '18.x'
 
 jobs:
@@ -49,3 +49,4 @@ jobs:
           app-name: 'function-ai-demo-kessan'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
