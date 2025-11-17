@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js project to Azure Function App - function-ai-demo-kessan
 
 on:
@@ -10,17 +7,16 @@ on:
   workflow_dispatch:
 
 env:
-  # Functions プロジェクトのパス（リポジトリ直下の kessan-func フォルダ）
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'kessan-func'
-  # 利用する Node.js バージョン
+  # Functions プロジェクトの実体は kessan-func/kessan-func 配下にある
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'kessan-func/kessan-func'
   NODE_VERSION: '18.x'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write   # Azure の OIDC ログイン用
-      contents: read    # リポジトリ読み取り用
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout GitHub Action
@@ -35,7 +31,7 @@ jobs:
         working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         run: npm install
 
-      # Functions 側で特別な build が不要ならここは省略してもよい
+      # 必要なければ build は省略可
       # - name: Build (optional)
       #   working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
       #   run: npm run build --if-present
