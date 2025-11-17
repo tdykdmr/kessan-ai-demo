@@ -10,44 +10,36 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '22.x' # set this to the node version to use (supports 8.x, 10.x, 12.x)
+  # Functions プロジェクトのパス（リポジトリ直下の kessan-func フォルダ）
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'kessan-func'
+  # 利用する Node.js バージョン
+  NODE_VERSION: '18.x'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Azure の OIDC ログイン用
+      contents: read    # リポジトリ読み取り用
+
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout GitHub Action
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: 'Resolve Project Dependencies'
-        working-directory: kessan-func
+      - name: Resolve Project Dependencies
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         run: npm install
 
-      - name: 'Build and Deploy Functions'
-        working-directory: kessan-func
-        run: |
-          npm run build --if-present
-          # Functions 用のビルドが不要なら、build は省略してもよい
+      # Functions 側で特別な build が不要ならここは省略してもよい
+      # - name: Build (optional)
+      #   working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+      #   run: npm run build --if-present
 
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -55,12 +47,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_21D3765098254DA9BCD7A6AC491EF698 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5EBC0DDA5BAD4D50B4AA46567D4FA785 }}
 
-      - name: 'Run Azure Functions Action'
+      - name: Run Azure Functions Action
         uses: Azure/functions-action@v1
-        id: fa
         with:
           app-name: 'function-ai-demo-kessan'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
-          
