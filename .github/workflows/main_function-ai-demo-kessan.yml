@@ -1,9 +1,10 @@
-name: Deploy Function App
+name: Build and Deploy Azure Functions
 
 on:
   push:
     branches:
-      - main   # デプロイ対象ブランチ。必要に応じて変更
+      - main        # デプロイ対象ブランチ。必要なら変更
+  workflow_dispatch: # 手動トリガーも許可
 
 jobs:
   build-and-deploy:
@@ -14,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ② Node のセットアップ
+      # ② Node.js セットアップ
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -25,15 +26,20 @@ jobs:
         working-directory: ./kessan-func
         run: npm ci
 
-      # ④ （ビルドが必要なら）ビルド
+      # ④ （必要なら）ビルド
       - name: Build Functions
         working-directory: ./kessan-func
         run: npm run build --if-present
 
-      # ⑤ Azure Functions にデプロイ（publish profile 利用）
+      # ⑤ Azure へログイン（Service Principal 経由）
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ⑥ Azure Functions にデプロイ
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: "function-ai-demo-kessan"   # 例: kessan-func-app
-          package: "./kessan-func"
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          app-name: "function-ai-demo-kessan"   # あなたの Function App 名
+          package: "./kessan-func"              # Functions プロジェクトのフォルダ
